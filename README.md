@@ -10,6 +10,7 @@ This repository contains a collection of Bash scripts to manage development tool
 | `jdk-gradle.sh` | Installs and manages OpenJDK & Gradle via SDKMAN!.                                                                |
 | `python.sh`     | Installs and manages Python versions via pyenv.                                                                   |
 | `golang.sh`     | Installs and manages Go versions via ASDF.                                                                        |
+| `bootstrap-ubuntu-24.04-lts.sh` | Bootstraps an Ubuntu 24.04 LTS desktop with KDE, development tools, containers, communication apps, and more. |
 
 ## env\_utils.sh
 
