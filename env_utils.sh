@@ -126,18 +126,16 @@ enable_command_tracing() {
 # Then confirms with the user before modifying that file.
 #-------------------------------------------------------------------------------
 detect_source_file() {
+  local PROFILE
   local user_shell response
   user_shell="$(basename "${SHELL:-}" )"
 
   case "${user_shell}" in
-    zsh)  SOURCE_FILE="${HOME}/.zprofile"  ;;  # Zsh login profile
-    bash) SOURCE_FILE="${HOME}/.bash_profile" ;;  # Bash login profile
+    zsh)  PROFILE="$HOME/.zshrc" ;;  # Zsh profile
+    bash) PROFILE="$HOME/.bashrc" ;;  # Bash login profile
     *)
-      # Unknown shell: ask user
-      log "⚠️  Could not auto-detect your shell (SHELL='${SHELL}')."
-      prompt "Which profile file should I update? (e.g. \~/.bash\_profile or \~/.zprofile): "
-      read -r response
-      SOURCE\_FILE="\${response}"
+      log "⚠️  Could not auto-detect your shell; defaulting to ~/.profile"
+      PROFILE="$HOME/.profile"
       ;;
   esac
 
@@ -150,7 +148,10 @@ detect_source_file() {
     log "Aborting — no changes made."
     exit 1
   fi
+  # Set the global SOURCE_FILE variable
+  SOURCE_FILE="$PROFILE"
 }
+
 
 #-------------------------------------------------------------------------------
 # FUNCTION: finalize_logging

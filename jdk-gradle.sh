@@ -29,7 +29,9 @@ install_sdkman() {
     if [ ! -d "$HOME/.sdkman" ]; then
         log "Installing SDKMAN!..."
         curl -s "https://get.sdkman.io" | bash
+        set +u
         source "$HOME/.sdkman/bin/sdkman-init.sh"
+        set -u
         log "SDKMAN! installed successfully."
     else
         log "SDKMAN! is already installed."
