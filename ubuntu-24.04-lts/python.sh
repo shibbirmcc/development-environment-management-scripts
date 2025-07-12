@@ -36,20 +36,44 @@ install_pyenv() {
     fi
 }
 
-# Function to install necessary dependencies
-install_dependencies() {
-    log "Installing required dependencies..."
-    brew install readline xz openssl@3
+# Locale setup to avoid locale-related errors
+setup_locale() {
+    echo "🌐 Setting up locale..."
+    sudo apt-get update
+    sudo apt-get install -y locales
+    sudo locale-gen en_US.UTF-8
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
 }
 
-# Function to install a specific Python version
+# Install the build‐deps you need to compile CPython
+install_dependencies() {
+    echo "Installing required dependencies for Python builds..."
+    sudo apt update
+    sudo apt install -y \
+        build-essential \
+        libssl-dev \
+        zlib1g-dev \
+        libbz2-dev \
+        libreadline-dev \
+        libsqlite3-dev \
+        wget \
+        llvm \
+        libncurses5-dev \
+        libncursesw5-dev \
+        xz-utils \
+        tk-dev \
+        libffi-dev \
+        liblzma-dev \
+        git
+}
+
+# Download, compile and install a specific Python via pyenv
 install_python() {
     local version=$1
     echo "Installing Python version: $version"
+    setup_locale
     install_dependencies
-    export LDFLAGS="-L$(brew --prefix readline)/lib"
-    export CPPFLAGS="-I$(brew --prefix readline)/include"
-    export PKG_CONFIG_PATH="$(brew --prefix readline)/lib/pkgconfig"
     export PYTHON_CONFIGURE_OPTS="--enable-shared"
     pyenv install "$version"
 }
@@ -65,9 +89,9 @@ set_default_python() {
     log "Setting default Python version to: $version"
     pyenv global "$version"
 
-    if [ ! -d "$PYTHON_ENV_FILE" ]; then
+    if [ ! -f "$PYTHON_ENV_FILE" ]; then
         log "Creating gradle env file $PYTHON_ENV_FILE"
-        mkdir -p "$PYTHON_ENV_FILE"
+        touch "$PYTHON_ENV_FILE"
     fi
 
     echo "export PYENV_VERSION=\"$version\"" > $PYTHON_ENV_FILE
@@ -90,9 +114,11 @@ fi
 
 # Ensure ~/.python_version is sourced in $SOURCE_FILE
 marker="source $PYTHON_ENV_FILE"
-if ! grep -Fq "$marker" $SOURCE_FILE; then
-    echo "$marker" >> $SOURCE_FILE
-    log "Added Python version script to $SOURCE_FILE. Please restart your shell or run: source $SOURCE_FILE"
+if [ -f "$PYTHON_ENV_FILE" ]; then
+    if ! grep -Fq "$marker" $SOURCE_FILE; then
+        echo "$marker" >> $SOURCE_FILE
+        log "Added Python version script to $SOURCE_FILE. Please restart your shell or run: source $SOURCE_FILE"
+    fi
 fi
 
 # Menu for managing Python versions

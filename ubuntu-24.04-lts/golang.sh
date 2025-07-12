@@ -37,16 +37,34 @@ install_asdf() {
     fi
 }
 
+# Ensure an asdf plugin is installed, adding it if missing
+ensure_asdf_plugin() {
+  local plugin="$1"
+  local repo_url="${2:-}"
+  if ! asdf plugin-list | grep -qx "${plugin}"; then
+    if [ -n "${repo_url}" ]; then
+      log "Adding asdf plugin '${plugin}' from ${repo_url}..."
+      asdf plugin-add "${plugin}" "${repo_url}"
+    else
+      log "Adding asdf plugin '${plugin}'..."
+      asdf plugin-add "${plugin}"
+    fi
+  else
+    log "asdf plugin '${plugin}' already installed."
+  fi
+}
+
 # Function to install the Go plugin for asdf
 install_go_plugin() {
     log "Installing Go plugin for asdf..."
-    asdf plugin-add golang https://github.com/kennyp/asdf-golang.git
+    ensure_asdf_plugin golang https://github.com/kennyp/asdf-golang.git
 }
 
 # Function to install a specific Go version
 install_go() {
     local version=$1
     log "Installing Go version: $version"
+    install_go_plugin
     asdf install golang "$version"
 }
 
@@ -61,9 +79,9 @@ set_default_go() {
     log "Setting default Go version to: $version"
     asdf global golang "$version"
 
-    if [ ! -d "$GO_ENV_FILE" ]; then
+    if [ ! -f "$GO_ENV_FILE" ]; then
         log "Creating gradle env file $GO_ENV_FILE"
-        mkdir -p "$GO_ENV_FILE"
+        touch "$GO_ENV_FILE"
     fi
 
     echo "export GOLANG_VERSION=\"$version\"" > $GO_ENV_FILE
@@ -94,12 +112,12 @@ fi
 
 # Ensure $GO_ENV_FILE is sourced in $SOURCE_FILE
 marker="source $GO_ENV_FILE"
-if ! grep -Fq "$marker" $SOURCE_FILE; then
-    echo "$marker" >> $SOURCE_FILE
-    log "Added Go version script to $SOURCE_FILE. Please restart your shell or run: source $SOURCE_FILE"
+if [ -f "$GO_ENV_FILE" ]; then
+    if ! grep -Fq "$marker" $SOURCE_FILE; then
+        echo "$marker" >> $SOURCE_FILE
+        log "Added Go version script to $SOURCE_FILE. Please restart your shell or run: source $SOURCE_FILE"
+    fi
 fi
-
-enable_command_tracing
 
 # Menu for managing Go versions
 info "Select an option:"

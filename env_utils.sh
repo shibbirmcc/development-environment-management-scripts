@@ -126,16 +126,15 @@ enable_command_tracing() {
 # Then confirms with the user before modifying that file.
 #-------------------------------------------------------------------------------
 detect_source_file() {
-  local PROFILE
   local user_shell response
   user_shell="$(basename "${SHELL:-}" )"
 
   case "${user_shell}" in
-    zsh)  PROFILE="$HOME/.zshrc" ;;  # Zsh profile
-    bash) PROFILE="$HOME/.bashrc" ;;  # Bash login profile
+    zsh)  SOURCE_FILE="$HOME/.zshrc" ;;  # Zsh profile
+    bash) SOURCE_FILE="$HOME/.bashrc" ;;  # Bash login profile
     *)
       log "⚠️  Could not auto-detect your shell; defaulting to ~/.profile"
-      PROFILE="$HOME/.profile"
+      SOURCE_FILE="$HOME/.profile"
       ;;
   esac
 
@@ -148,8 +147,40 @@ detect_source_file() {
     log "Aborting — no changes made."
     exit 1
   fi
-  # Set the global SOURCE_FILE variable
-  SOURCE_FILE="$PROFILE"
+}
+
+# detect_source_file() {
+#   local real_user real_home user_shell
+#   # If run under sudo, use SUDO_USER; else current USER
+#   real_user="${SUDO_USER:-$USER}"
+#   real_home="$(eval echo ~${real_user})"
+#   user_shell="$(basename "$(eval echo \$SHELL)")"
+
+#   case "${user_shell}" in
+#     zsh)  SOURCE_FILE="${real_home}/.zshrc" ;;     # Zsh config
+#     bash) SOURCE_FILE="${real_home}/.bashrc" ;;   # Bash config
+#     *)     SOURCE_FILE="${real_home}/.profile" ;;  # Fallback
+#   esac
+
+#   # Confirm before writing
+#   echo
+#   info "The script will append environment sourcing to: ${SOURCE_FILE}"
+#   prompt "Is that OK? \[y/N]: "
+#   read -r response
+#   if [[ ! "${response}" =~ ^[Yy] ]]; then
+#     log "Aborting — no changes made."
+#     exit 1
+#   fi
+# }
+
+
+# Function to link root's shell config to the detected source file
+link_root_source_file() {
+  if [ "$(id -u)" -eq 0 ]; then
+    local root_rc="/root/$(basename "$SOURCE_FILE")"
+    echo "🔗 Linking $root_rc to $SOURCE_FILE"
+    ln -sf "$SOURCE_FILE" "$root_rc"
+  fi
 }
 
 

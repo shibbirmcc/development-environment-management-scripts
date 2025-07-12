@@ -21,6 +21,22 @@ JAVA_ENV_FILE="$ENVIRONMENT_DIR/.java"
 GRADLE_ENV_FILE="$ENVIRONMENT_DIR/.gradle"
 
 
+######################################### 
+# SDKMAN! Initialization
+########################################
+# avoid “unbound variable” inside sdkman-init.sh
+export SDKMAN_OFFLINE_MODE="${SDKMAN_OFFLINE_MODE:-false}"
+export SDKMAN_CANDIDATES_API="${SDKMAN_CANDIDATES_API:-https://api.sdkman.io/2}"
+
+
+SDKMAN_INIT="$HOME/.sdkman/bin/sdkman-init.sh"
+if [ -s "$SDKMAN_INIT" ]; then
+  echo "🐍 Initializing SDKMAN for user $USER"
+  set +u; source "$SDKMAN_INIT"; set -u
+else
+  echo "⚠️ SDKMAN init script not found at $SDKMAN_INIT"
+fi
+
 ########################################
 # FUNCTIONS TO MANAGE OPENJDK AND GRADLE VIA SDKMAN!
 ########################################
@@ -32,6 +48,7 @@ install_sdkman() {
         set +u
         source "$HOME/.sdkman/bin/sdkman-init.sh"
         set -u
+        sudo chown -R "$USER:$USER" ~/.sdkman
         log "SDKMAN! installed successfully."
     else
         log "SDKMAN! is already installed."
@@ -56,9 +73,9 @@ set_default_jdk() {
     local version=$1
     log "Setting default OpenJDK version to: $version"
     sdk default java "$version"
-    if [ ! -d "$JAVA_ENV_FILE" ]; then
+    if [ ! -f "$JAVA_ENV_FILE" ]; then
         log "Creating java env file $JAVA_ENV_FILE"
-        mkdir -p "$JAVA_ENV_FILE"
+        touch "$JAVA_ENV_FILE"
     fi
     echo "export JAVA_HOME=\"$(sdk home java $version)\"" > $JAVA_ENV_FILE
     echo "export PATH=\"\$JAVA_HOME/bin:\$PATH\"" >> $JAVA_ENV_FILE
@@ -90,9 +107,9 @@ set_default_gradle() {
     log "Setting default Gradle version to: $version"
     sdk default gradle "$version"
 
-    if [ ! -d "$GRADLE_ENV_FILE" ]; then
+    if [ ! -f "$GRADLE_ENV_FILE" ]; then
         log "Creating gradle env file $GRADLE_ENV_FILE"
-        mkdir -p "$GRADLE_ENV_FILE"
+        touch "$GRADLE_ENV_FILE"
     fi
 
     echo "export GRADLE_HOME=\"$(sdk home gradle $version)\"" > $GRADLE_ENV_FILE
@@ -108,22 +125,16 @@ use_gradle() {
 
 
 ########################################
-# Bootstrap SDKMAN! if already installed
-########################################
-if [ -d "$HOME/.sdkman" ]; then
-    source "$HOME/.sdkman/bin/sdkman-init.sh"
-fi
-
-
-########################################
 # Ensure env-scripts are sourced in the detected profile
 ########################################
 # (detect_source_file() has set $SOURCE_FILE already)
 for env_file in "$JAVA_ENV_FILE" "$GRADLE_ENV_FILE"; do
-  marker="source $env_file"
-  if ! grep -Fq "$marker" "$SOURCE_FILE"; then
-    echo "$marker" >> "$SOURCE_FILE"
-    log "Appended '$marker' to $SOURCE_FILE"
+  if [ -f "$env_file" ]; then
+    marker="source $env_file"
+    if ! grep -Fq "$marker" "$SOURCE_FILE"; then
+        echo "$marker" >> "$SOURCE_FILE"
+        log "Appended '$marker' to $SOURCE_FILE"
+    fi
   fi
 done
 
