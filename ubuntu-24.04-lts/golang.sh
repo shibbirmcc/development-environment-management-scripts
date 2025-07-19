@@ -8,7 +8,7 @@ IFS=$'\n\t'
 # (Optionally override LOGFILE here, before sourcing)
 # LOGFILE="/path/to/custom.log"
 
-source "$(dirname "$0")/env_utils.sh"
+source "$(dirname "$0")/../env_utils.sh"
 init_logging
 detect_source_file
 ensure_env_dir

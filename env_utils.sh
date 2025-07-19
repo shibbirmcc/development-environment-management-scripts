@@ -149,30 +149,6 @@ detect_source_file() {
   fi
 }
 
-# detect_source_file() {
-#   local real_user real_home user_shell
-#   # If run under sudo, use SUDO_USER; else current USER
-#   real_user="${SUDO_USER:-$USER}"
-#   real_home="$(eval echo ~${real_user})"
-#   user_shell="$(basename "$(eval echo \$SHELL)")"
-
-#   case "${user_shell}" in
-#     zsh)  SOURCE_FILE="${real_home}/.zshrc" ;;     # Zsh config
-#     bash) SOURCE_FILE="${real_home}/.bashrc" ;;   # Bash config
-#     *)     SOURCE_FILE="${real_home}/.profile" ;;  # Fallback
-#   esac
-
-#   # Confirm before writing
-#   echo
-#   info "The script will append environment sourcing to: ${SOURCE_FILE}"
-#   prompt "Is that OK? \[y/N]: "
-#   read -r response
-#   if [[ ! "${response}" =~ ^[Yy] ]]; then
-#     log "Aborting — no changes made."
-#     exit 1
-#   fi
-# }
-
 
 # Function to link root's shell config to the detected source file
 link_root_source_file() {
