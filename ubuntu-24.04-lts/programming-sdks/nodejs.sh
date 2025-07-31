@@ -5,7 +5,7 @@ IFS=$'\n\t'
 ########################################
 # Load utilities (logging, shell-detection, cleanup)
 ########################################
-source "$(dirname "$0")/../env_utils.sh"
+source "$(dirname "$0")/../../env_utils.sh"
 init_logging
 detect_source_file
 ensure_env_dir

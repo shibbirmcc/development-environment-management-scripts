@@ -27,14 +27,6 @@ sudo apt install apt-transport-https
 sudo apt update
 sudo apt install code # or code-insiders
 
-
-# curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
-# sudo install -o root -g root -m 644 /tmp/packages.microsoft.gpg /usr/share/keyrings/
-# echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main" | \
-#   sudo tee /etc/apt/sources.list.d/vscode.list
-# sudo apt update && sudo apt install -y code
-# rm /tmp/packages.microsoft.gpg
-
 # Create CLI symlink for 'code' if it doesn't already exist
 if [ -e /usr/local/bin/code ]; then
   echo "CLI 'code' already exists at /usr/local/bin/code; skipping symlink creation."

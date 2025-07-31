@@ -31,8 +31,8 @@ echo ">>> Configuring sshd to listen on 127.0.0.1 and 10.0.2.15 only"
 grep -v '^ListenAddress' "$SSHD_CONF" > "${SSHD_CONF}.tmp"
 {
   echo "ListenAddress 127.0.0.1"
-  echo "ListenAddress 10.0.2.15" ## if using VirtualBox NAT
-  echo "ListenAddress 192.168.56.2" ## if using VirtualBox Host-Only Adapter
+ # echo "ListenAddress 10.0.2.15" ## if using VirtualBox NAT
+ # echo "ListenAddress 192.168.56.2" ## if using VirtualBox Host-Only Adapter
   echo "ListenAddress 192.168.1.100" ## if the wifi ip is known
 } >> "${SSHD_CONF}.tmp"
 mv "${SSHD_CONF}.tmp" "$SSHD_CONF"
@@ -45,8 +45,8 @@ sudo ufw default deny incoming
 sudo ufw default allow outgoing
 
 # echo ">>> Allowing SSH only from 10.0.2.0/24 (VirtualBox NAT) via UFW"
-sudo ufw allow from 10.0.2.0/24 to any port 22 proto tcp # Remove this line if not using virtualbox
-sudo ufw allow from 192.168.56.0/24 to any port 22 proto tcp # Remove this line if not using virtualbox
+# sudo ufw allow from 10.0.2.0/24 to any port 22 proto tcp # Remove this line if not using virtualbox
+# sudo ufw allow from 192.168.56.0/24 to any port 22 proto tcp # Remove this line if not using virtualbox
 # echo ">>> Allowing SSH only from 192.168.1.0/2 (LOcal Wifi Network) via UFW"
 sudo ufw allow from 192.168.1.0/24 to any port 22 proto tcp
 
