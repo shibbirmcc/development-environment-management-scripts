@@ -19,6 +19,7 @@ sudo apt install -y openssh-server ufw
 
 #---- Step 2: Backup sshd_config ----
 SSHD_CONF=/etc/ssh/sshd_config
+SSHD_CONF_TMP=/tmp/sshd_config.tmp
 BACKUP_CONF=/etc/ssh/sshd_config.bak.$(date +%F_%T)
 log ">>> Backing up $SSHD_CONF to $BACKUP_CONF"
 sudo  cp "$SSHD_CONF" "$BACKUP_CONF"
@@ -28,14 +29,12 @@ sudo  cp "$SSHD_CONF" "$BACKUP_CONF"
 # We'll explicitly bind SSH there (and localhost).
 echo ">>> Configuring sshd to listen on 127.0.0.1 and 10.0.2.15 only"
 # Remove any existing ListenAddress lines, then add ours
-grep -v '^ListenAddress' "$SSHD_CONF" > "${SSHD_CONF}.tmp"
-{
-  echo "ListenAddress 127.0.0.1"
- # echo "ListenAddress 10.0.2.15" ## if using VirtualBox NAT
- # echo "ListenAddress 192.168.56.2" ## if using VirtualBox Host-Only Adapter
-  echo "ListenAddress 192.168.1.100" ## if the wifi ip is known
-} >> "${SSHD_CONF}.tmp"
-mv "${SSHD_CONF}.tmp" "$SSHD_CONF"
+sudo bash -c "grep -v '^ListenAddress' $SSHD_CONF" > "$SSHD_CONF_TMP" && \
+echo "ListenAddress 127.0.0.1" >> "$SSHD_CONF_TMP" && \
+echo "ListenAddress 192.168.1.100" >> "$SSHD_CONF_TMP" && \
+ # echo "ListenAddress 10.0.2.15" >> "$SSHD_CONF_TMP" && \ ## if using VirtualBox NAT
+ # echo "ListenAddress 192.168.56.2" >> "$SSHD_CONF_TMP" && \ ## if using VirtualBox Host-Only Adapter
+sudo mv "$SSHD_CONF_TMP" "$SSHD_CONF"
 chmod 600 "$SSHD_CONF"
 
 
