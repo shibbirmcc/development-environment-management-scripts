@@ -86,6 +86,7 @@ set_default_go() {
 
     echo "export GOLANG_VERSION=\"$version\"" > $GO_ENV_FILE
     echo "" >> $GO_ENV_FILE
+    echo "export GOROOT=\$(go env GOROOT)" >> $GO_ENV_FILE
     echo "# Add Go bin path to PATH dynamically based on GOBIN or GOPATH" >> $GO_ENV_FILE
     echo "if [ -n \"\$(go env GOBIN)\" ]; then" >> $GO_ENV_FILE
     echo "  export PATH=\"\$PATH:\$(go env GOBIN)\"" >> $GO_ENV_FILE
