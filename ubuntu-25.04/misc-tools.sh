@@ -61,6 +61,12 @@ sudo apt update && sudo apt install signal-desktop
 sudo snap install slack
 
 # ----------------------------------------
+# File Transfer Tools
+# ----------------------------------------
+echo "📁 Installing FileZilla..."
+sudo apt install -y filezilla
+
+# ----------------------------------------
 # Postman
 # ----------------------------------------
 echo "🧪 Installing Postman..."
@@ -70,4 +76,3 @@ sudo snap install postman
 # Wrap up logging & cleanup
 ########################################
 finalize_logging
-
